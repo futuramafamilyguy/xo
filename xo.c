@@ -41,13 +41,17 @@ int main() {
     do {
         print_grid(squares);
 
-        if (prompt_user(&players[turnCounter], &inputPos)) {
-
-            if (execute_move(&players[turnCounter], squares, inputPos)) {
-
-                turnCounter = 1 - turnCounter;
-            }
+        if (!prompt_user(&players[turnCounter], &inputPos)) {
+            
+            continue;
         }
+
+        if (!execute_move(&players[turnCounter], squares, inputPos)) {
+
+            continue;
+        }
+
+        turnCounter = 1 - turnCounter;
         
     } while (1);
 
