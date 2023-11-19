@@ -273,6 +273,6 @@ int check_diagonal(Sq *squares, int pos) {
         return squares[2].player == squares[4].player && squares[2].player == squares[6].player;
     }
 
-    return squares[0].player == squares[4].player && squares[0].player == squares[8].player ||
-        squares[2].player == squares[4].player && squares[2].player == squares[6].player;
+    return squares[0].player == squares[4].player && squares[0].player == squares[8].player
+        || squares[2].player == squares[4].player && squares[2].player == squares[6].player;
 }
