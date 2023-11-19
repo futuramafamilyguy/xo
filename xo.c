@@ -27,33 +27,48 @@ int prompt_user(Player *currentPlayer, int *pos);
 
 int execute_move(Player *currentPlayer, Sq *squares, int pos);
 
+int check_game_ended(Sq *squares, int turnNumber, int lastInputPos, int *draw);
+
+int check_horizontal(Sq *squares, int lastInputPos);
+
+int check_vertical(Sq *squares, int lastInputPos);
+
+int check_diagonal(Sq *squares, int lastInputPos);
+
 int main() {
     
-    // instantiate sq
     Sq *squares = init_squares();
 
-    // instantiate players
     Player *players = init_players();
 
-    int turnCounter = 0;
+    int turnNumber = 0;
     int inputPos;
+    int draw;
 
     do {
         print_grid(squares);
 
-        if (!prompt_user(&players[turnCounter], &inputPos)) {
+        if (!prompt_user(&players[turnNumber % 2], &inputPos)) {
             
             continue;
         }
 
-        if (!execute_move(&players[turnCounter], squares, inputPos)) {
+        if (!execute_move(&players[turnNumber % 2], squares, inputPos)) {
 
             continue;
         }
-
-        turnCounter = 1 - turnCounter;
         
-    } while (1);
+        turnNumber++;
+
+    } while (!check_game_ended(squares, turnNumber, inputPos, &draw));
+
+    print_grid(squares);
+
+    if (draw) {
+        printf("draw\n");
+    } else {
+        printf("player %d wins\n", players[(turnNumber - 1) % 2].id);
+    }
 
     // clean up
     free(squares);
@@ -153,4 +168,111 @@ char get_square_value(Sq* square) {
     }
 
     return square->pos + '0';
+}
+
+int check_game_ended(Sq *squares, int turnNumber, int lastInputPos, int *draw) {
+    
+    if (turnNumber < 4) {
+        
+        return 0;
+    }
+
+    lastInputPos--;
+
+    if (!check_horizontal(squares, lastInputPos)
+        && !check_vertical(squares, lastInputPos)
+        && !check_diagonal(squares, lastInputPos)) {
+        
+        if (turnNumber < NUM_OF_SQUARES) {
+            
+            return 0;
+        }
+
+        *draw = 1;
+
+        return 1;
+    }
+
+    *draw = 0;
+
+    return 1;
+}
+
+int check_horizontal(Sq *squares, int pos) {
+    
+    int squaresPos[3];
+    
+    int quotient = pos / BOARD_DIM;
+
+    switch (quotient) {
+
+        case 0:
+        squaresPos[0] = 0;
+        squaresPos[1] = 1;
+        squaresPos[2] = 2;
+        break;
+
+        case 1:
+        squaresPos[0] = 3;
+        squaresPos[1] = 4;
+        squaresPos[2] = 5;
+        break;
+
+        case 2:
+        squaresPos[0] = 6;
+        squaresPos[1] = 7;
+        squaresPos[2] = 8;
+        break;
+    }
+    
+    return squares[squaresPos[0]].player == squares[squaresPos[1]].player && squares[squaresPos[0]].player == squares[squaresPos[2]].player;
+}
+
+int check_vertical(Sq *squares, int pos) {
+    
+    int squaresPos[3];
+    
+    int remainder = pos / BOARD_DIM;
+
+    switch (remainder) {
+
+        case 0:
+        squaresPos[0] = 0;
+        squaresPos[1] = 3;
+        squaresPos[2] = 6;
+        break;
+
+        case 1:
+        squaresPos[0] = 1;
+        squaresPos[1] = 4;
+        squaresPos[2] = 7;
+        break;
+
+        case 2:
+        squaresPos[0] = 2;
+        squaresPos[1] = 4;
+        squaresPos[2] = 8;
+        break;
+    }
+    
+    return squares[squaresPos[0]].player == squares[squaresPos[1]].player && squares[squaresPos[0]].player == squares[squaresPos[2]].player;
+}
+
+int check_diagonal(Sq *squares, int pos) {
+
+    if (pos % 2 == 1) {
+        
+        return 0;
+    }
+
+    if (pos != 4 && pos % 4 == 0) {
+        
+        return squares[0].player == squares[4].player && squares[0].player == squares[8].player;
+    } else if (pos != 4 && pos % 7 == 1) {
+
+        return squares[2].player == squares[4].player && squares[2].player == squares[6].player;
+    }
+
+    return squares[0].player == squares[4].player && squares[0].player == squares[8].player ||
+        squares[2].player == squares[4].player && squares[2].player == squares[6].player;
 }
