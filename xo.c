@@ -254,7 +254,7 @@ int check_vertical(Sq *squares, int pos) {
 
         case 2:
         squaresPos[0] = 2;
-        squaresPos[1] = 4;
+        squaresPos[1] = 5;
         squaresPos[2] = 8;
         break;
     }
@@ -277,8 +277,8 @@ int check_diagonal(Sq *squares, int pos) {
         return squares[2].player == squares[4].player && squares[2].player == squares[6].player;
     }
 
-    return squares[0].player == squares[4].player && squares[0].player == squares[8].player
-        || squares[2].player == squares[4].player && squares[2].player == squares[6].player;
+    return (squares[0].player == squares[4].player && squares[0].player == squares[8].player)
+        || (squares[2].player == squares[4].player && squares[2].player == squares[6].player);
 }
 
 int prompt_single_digit_within_range(int *num, int low, int high) {
