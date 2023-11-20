@@ -315,5 +315,5 @@ void ai_select_pos(int *inputPos, Sq* squares) {
         }
     }
 
-    *inputPos = freeSquares[rand() % 9]; 
+    *inputPos = freeSquares[rand() % freeSquareCount]; 
 }
