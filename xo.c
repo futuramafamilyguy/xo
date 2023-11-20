@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
 
 #define NUM_OF_PLAYERS 2
 #define NUM_OF_SQUARES 9
 #define BOARD_DIM 3
 
 typedef struct {
-    int id;
+    int id, isAi;
     char symbol;
 }Player;
 
@@ -17,13 +19,11 @@ typedef struct {
 
 Sq* init_squares();
 
-Player* init_players();
+Player* init_players(int numOfHumanPlayers);
 
 void print_grid(Sq *squares);
 
 char get_square_value(Sq *square);
-
-int prompt_user(Player *currentPlayer, int *pos);
 
 int execute_move(Player *currentPlayer, Sq *squares, int pos);
 
@@ -35,11 +35,25 @@ int check_vertical(Sq *squares, int lastInputPos);
 
 int check_diagonal(Sq *squares, int lastInputPos);
 
+int prompt_single_digit_within_range(int *num, int low, int high);
+
+void ai_select_pos(int *inputPos, Sq* squares);
+
 int main() {
+
+    srand(time(NULL));
     
+    printf("xoxo the game^tm\n");
+
+    int numOfHumanPlayers;
+    do {
+        printf("enter number of players (1 or 2): ");
+
+    } while (!prompt_single_digit_within_range(&numOfHumanPlayers, 1, 2));
+
     Sq *squares = init_squares();
 
-    Player *players = init_players();
+    Player *players = init_players(numOfHumanPlayers);
 
     int turnNumber = 0;
     int inputPos;
@@ -48,9 +62,20 @@ int main() {
     do {
         print_grid(squares);
 
-        if (!prompt_user(&players[turnNumber % 2], &inputPos)) {
-            
-            continue;
+        if (!players[turnNumber % 2].isAi) {
+
+            printf("player %d's turn. enter square to place mark (1-9): ", players[turnNumber % 2].id);
+
+            if (!prompt_single_digit_within_range(&inputPos, 1, 9)) {
+                
+                continue;
+            }
+        } else {
+
+            printf("ai is thinking...\n");
+            sleep(2);
+            ai_select_pos(&inputPos, squares);
+            printf("ai placed mark at square %d\n", inputPos);
         }
 
         if (!execute_move(&players[turnNumber % 2], squares, inputPos)) {
@@ -93,38 +118,17 @@ Sq* init_squares() {
     return squares;
 }
 
-Player* init_players() {
+Player* init_players(int numOfHumanPlayers) {
 
     Player *players = malloc(NUM_OF_PLAYERS * sizeof(Player));
     players[0].id = 1;
     players[0].symbol = 'X';
+    players[0].isAi = 0;
     players[1].id = 2;
     players[1].symbol = 'O';
+    players[1].isAi = (numOfHumanPlayers == 1);
 
     return players;
-}
-
-int prompt_user(Player *currentPlayer, int *pos) {
-
-    printf("player %d's turn. enter square to place mark (1-9): ", currentPlayer->id);
-
-    char input, first;
-    int count = 0;
-
-    first = fgetc(stdin);
-    while (((input = fgetc(stdin)) != '\n') && (input != EOF)) {
-        count++;
-    }
-
-    if (count > 0 || (first < '1') || (first > '9')) {
-        printf("invalid input. try again.\n");
-
-        return 0;
-    }
-
-    *pos = first - '0';
-    
-    return 1;
 }
 
 int execute_move(Player *currentPlayer, Sq *squares, int pos) {
@@ -275,4 +279,41 @@ int check_diagonal(Sq *squares, int pos) {
 
     return squares[0].player == squares[4].player && squares[0].player == squares[8].player
         || squares[2].player == squares[4].player && squares[2].player == squares[6].player;
+}
+
+int prompt_single_digit_within_range(int *num, int low, int high) {
+    
+    char input, first;
+    int count = 0;
+
+    first = fgetc(stdin);
+    while (((input = fgetc(stdin)) != '\n') && (input != EOF)) {
+        count++;
+    }
+
+    if (count > 0 || (first < low + '0') || (first > high + '0')) {
+        printf("invalid input. try again.\n");
+
+        return 0;
+    }                                       
+
+    *num = first - '0';
+
+    return 1;
+}
+
+void ai_select_pos(int *inputPos, Sq* squares) {
+    
+    int freeSquares[NUM_OF_SQUARES];
+    int freeSquareCount = 0;
+
+    for (int i = 0; i < NUM_OF_SQUARES; i++) {
+
+        if (!squares[i].player) {
+
+            freeSquares[freeSquareCount++] = squares[i].pos;
+        }
+    }
+
+    *inputPos = freeSquares[rand() % 9]; 
 }
