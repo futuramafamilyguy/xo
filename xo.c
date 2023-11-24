@@ -3,6 +3,7 @@
 #include <time.h>
 #include <unistd.h>
 #include "helpers/stringmanip.h"
+#include "helpers/config.h"
 
 #define NUM_OF_PLAYERS 2
 #define NUM_OF_SQUARES 9
@@ -40,17 +41,28 @@ int prompt_single_digit_within_range(int *num, int low, int high);
 
 void ai_select_pos(int *inputPos, Sq* squares);
 
-int main() {
+int main(int argc, char *argv[]) {
+
+    if( argc != 2 ) {
+
+        (void)fprintf(stderr, "pls supply single config file as input\n");
+        return 1;
+    }
+
+    FILE *configfp;
+    configfp = fopen(argv[1], "r");
+    int numOfHumanPlayers;
+
+    if(!load_config(configfp, &numOfHumanPlayers)) {
+
+        (void)fprintf(stderr, "error reading config file\n");
+
+        return 1;
+    }
 
     srand(time(NULL));
     
     printf("xoxo the game^tm\n");
-
-    int numOfHumanPlayers;
-    do {
-        printf("enter number of players (1 or 2): ");
-
-    } while (!prompt_single_digit_within_range(&numOfHumanPlayers, 1, 2));
 
     Sq *squares = init_squares();
 
