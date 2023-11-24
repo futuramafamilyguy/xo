@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include "helpers/stringmanip.h"
 
 #define NUM_OF_PLAYERS 2
 #define NUM_OF_SQUARES 9
