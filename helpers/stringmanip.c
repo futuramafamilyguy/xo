@@ -53,7 +53,7 @@ char** str_split(char *str, char splitBy) {
 int str_length(const char *str) {
     
     int length = 0;
-    while (str[length] != '\0') {
+    while (str[length] != '\0' && str[length] != '\n') {
         
         length++;
     }

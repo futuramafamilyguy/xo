@@ -10,8 +10,9 @@
 #define BOARD_DIM 3
 
 typedef struct {
-    int id, isAi;
+    int isAi;
     char symbol;
+    char *name;
 }Player;
 
 typedef struct {
@@ -21,7 +22,7 @@ typedef struct {
 
 Sq* init_squares();
 
-Player* init_players(int numOfHumanPlayers);
+Player* init_players(int numOfHumanPlayers, char *player1Name, char *player2Name);
 
 void print_grid(Sq *squares);
 
@@ -51,9 +52,12 @@ int main(int argc, char *argv[]) {
 
     FILE *configfp;
     configfp = fopen(argv[1], "r");
+    
     int numOfHumanPlayers;
+    char *player1Name;
+    char *player2Name;
 
-    if(!load_config(configfp, &numOfHumanPlayers)) {
+    if(!load_config(configfp, &numOfHumanPlayers, player1Name, player2Name)) {
 
         (void)fprintf(stderr, "error reading config file\n");
 
@@ -66,7 +70,7 @@ int main(int argc, char *argv[]) {
 
     Sq *squares = init_squares();
 
-    Player *players = init_players(numOfHumanPlayers);
+    Player *players = init_players(numOfHumanPlayers, player1Name, player2Name);
 
     int turnNumber = 0;
     int inputPos;
@@ -77,7 +81,7 @@ int main(int argc, char *argv[]) {
 
         if (!players[turnNumber % 2].isAi) {
 
-            printf("player %d's turn. enter square to place mark (1-9): ", players[turnNumber % 2].id);
+            printf("%s's turn. enter square to place mark (1-9): ", players[turnNumber % 2].name);
 
             if (!prompt_single_digit_within_range(&inputPos, 1, 9)) {
                 
@@ -105,7 +109,7 @@ int main(int argc, char *argv[]) {
     if (draw) {
         printf("draw\n");
     } else {
-        printf("player %d wins\n", players[(turnNumber - 1) % 2].id);
+        printf("%s wins\n", players[(turnNumber - 1) % 2].name);
     }
 
     // clean up
@@ -131,13 +135,13 @@ Sq* init_squares() {
     return squares;
 }
 
-Player* init_players(int numOfHumanPlayers) {
+Player* init_players(int numOfHumanPlayers, char *player1Name, char *player2Name) {
 
     Player *players = malloc(NUM_OF_PLAYERS * sizeof(Player));
-    players[0].id = 1;
+    players[0].name = player1Name;
     players[0].symbol = 'X';
     players[0].isAi = 0;
-    players[1].id = 2;
+    players[1].name = player2Name;
     players[1].symbol = 'O';
     players[1].isAi = (numOfHumanPlayers == 1);
 
