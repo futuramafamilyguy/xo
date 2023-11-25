@@ -115,6 +115,8 @@ int main(int argc, char *argv[]) {
     // clean up
     free(squares);
     free(players);
+    free(player1Name);
+    free(player2Name);
 
     return 0;
 }
