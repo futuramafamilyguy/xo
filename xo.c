@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     char *player1Name;
     char *player2Name;
 
-    if(!load_config(configfp, &numOfHumanPlayers, player1Name, player2Name)) {
+    if(!load_config(configfp, &numOfHumanPlayers, &player1Name, &player2Name)) {
 
         (void)fprintf(stderr, "error reading config file\n");
 

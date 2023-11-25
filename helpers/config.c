@@ -7,7 +7,9 @@
 
 void free_config(char **config);
 
-int load_config(FILE *configfp, int *numOfPlayers, char *player1Name, char *player2Name) {
+void free_config_key(char **config);
+
+int load_config(FILE *configfp, int *numOfPlayers, char **player1Name, char **player2Name) {
     
     char line[BUFFER_SIZE];
 
@@ -28,7 +30,7 @@ int load_config(FILE *configfp, int *numOfPlayers, char *player1Name, char *play
             
             if (!str_to_int(configKeyValue[1], numOfPlayers)) {
                 
-                free_config(configKeyValue);
+                free_config_key(configKeyValue);
 
                 return 0;
             }
@@ -37,26 +39,26 @@ int load_config(FILE *configfp, int *numOfPlayers, char *player1Name, char *play
 
                 (void)fprintf(stderr, "invalid number of players. should be 1 or 2\n");
 
-                free_config(configKeyValue);
+                free_config_key(configKeyValue);
 
                 return 0;
             }
         } else if (str_cmp(configKeyValue[0], "player_1_name")) {
 
-            player1Name = configKeyValue[1];
+            *player1Name = configKeyValue[1];
         } else if (str_cmp(configKeyValue[0], "player_2_name")) {
 
-            player2Name = configKeyValue[1];
+            *player2Name = configKeyValue[1];
         } else {
 
             (void)fprintf(stderr, "invalid config setting: %s\n", configKeyValue[0]);
 
-            free_config(configKeyValue);
+            free_config_key(configKeyValue);
 
             return 0;            
         }
 
-        free_config(configKeyValue);
+        free_config_key(configKeyValue);
     }
 
     return 1;
@@ -71,5 +73,11 @@ void free_config(char **config) {
         free(config[i]);
     }
 
+    free(config);
+}
+
+void free_config_key(char **config) {
+
+    free(config[0]);
     free(config);
 }
